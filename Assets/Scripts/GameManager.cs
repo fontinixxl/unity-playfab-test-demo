@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     /// <param name="result"></param>
     private void OnLoginSuccess(LoginResult result)
     {
-        Debug.LogFormat("Logged In as: {0}", result.PlayFabId);
+        //Debug.LogFormat("Logged In as: {0}", result.PlayFabId);
         StatusText.text = "Logged In as: " + result.PlayFabId.ToString();
 
         Instantiate(helicopter);
