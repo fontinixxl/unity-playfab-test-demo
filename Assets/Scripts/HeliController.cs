@@ -7,8 +7,7 @@ public class HeliController : MonoBehaviour
     private Rigidbody rb;
 	public float speed = 10.0f;
 	private Vector3 velocity;
-	private float vertical, horizontal;
-	
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();

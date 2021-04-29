@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject helicopter;
     // Meta references to panels we need to show / hide
     public Text StatusText;
 
@@ -36,10 +37,12 @@ public class GameManager : MonoBehaviour
     /// Login Successfully
     /// </summary>
     /// <param name="result"></param>
-    private void OnLoginSuccess(PlayFab.ClientModels.LoginResult result)
+    private void OnLoginSuccess(LoginResult result)
     {
         Debug.LogFormat("Logged In as: {0}", result.PlayFabId);
         StatusText.text = "Logged In as: " + result.PlayFabId.ToString();
+
+        Instantiate(helicopter);
         //LoginPanel.SetActive(false);
         //LoggedinPanel.SetActive(true);
         //UserName.text = result.InfoResultPayload.AccountInfo.Username ?? result.PlayFabId;
