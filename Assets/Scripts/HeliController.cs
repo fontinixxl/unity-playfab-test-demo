@@ -1,15 +1,20 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class HeliController : MonoBehaviour
 {
-    private Rigidbody rb;
+    public static event Action<int> OnCoinPickedUp;
+
 	public float speed = 10.0f;
+    private Rigidbody rb;
 	private Vector3 velocity;
+    private int coinTotal;
 
     void Start()
     {
+        coinTotal = 0;
         rb = GetComponent<Rigidbody>();
     }
 
@@ -35,6 +40,13 @@ public class HeliController : MonoBehaviour
             return;
 
         rb.velocity = velocity;
+    }
+
+    public void PickupCoin()
+    {
+        coinTotal += 1;
+        OnCoinPickedUp?.Invoke(coinTotal);
+        // TODO: trigger audio playback and emit particles from particle system
     }
 
     private void ConstrainMovementWithinBounds()
