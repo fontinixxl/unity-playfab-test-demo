@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Login Successfully - Goes to next screen.
+    /// Login Successfully
     /// </summary>
     /// <param name="result"></param>
     private void OnLoginSuccess(PlayFab.ClientModels.LoginResult result)
