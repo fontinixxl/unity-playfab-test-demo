@@ -6,10 +6,16 @@ public class Coin : Spawnable
 {
     public float rotationSpeed = 3f;
     public Text displayCoins;
+    private GameManager Manager;
+
+    private void Start()
+    {
+        Manager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
 
     protected override void PerformPerFrameOperations()
     {
-        transform.Translate(-SkyscraperSpawner.speed * Time.deltaTime, 0, 0, Space.World);
+        transform.Translate(-SpawnManager.speed * Time.deltaTime, 0, 0, Space.World);
 
         // infinitely rotate this coin about the Y axis in world space
         transform.Rotate(0, rotationSpeed, 0, Space.World);
@@ -17,7 +23,7 @@ public class Coin : Spawnable
 
     private void OnTriggerEnter(Collider other)
     {
-        other.transform.parent.GetComponent<HeliController>().PickupCoin();
+        Manager.PickUpCoins();
         // TODO: deactivate when object polling
         Destroy(gameObject);
     }

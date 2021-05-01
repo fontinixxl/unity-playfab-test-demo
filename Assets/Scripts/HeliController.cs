@@ -6,15 +6,16 @@ using UnityEngine;
 public class HeliController : MonoBehaviour
 {
     public static event Action<int> OnCoinPickedUp;
+    public static event Action OnCollision;
 
 	public float speed = 10.0f;
     private Rigidbody rb;
 	private Vector3 velocity;
-    private int coinTotal;
+    private int sessionCoins;
 
     void Start()
     {
-        coinTotal = 0;
+        sessionCoins = 0;
         rb = GetComponent<Rigidbody>();
     }
 
@@ -44,8 +45,8 @@ public class HeliController : MonoBehaviour
 
     public void PickupCoin()
     {
-        coinTotal += 1;
-        OnCoinPickedUp?.Invoke(coinTotal);
+        sessionCoins += 1;
+        OnCoinPickedUp?.Invoke(sessionCoins);
         // TODO: trigger audio playback and emit particles from particle system
     }
 
@@ -57,4 +58,17 @@ public class HeliController : MonoBehaviour
         transform.position = Camera.main.ViewportToWorldPoint(pos);
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Collidable"))
+        {
+            OnCollision?.Invoke();
+            // TODO:
+            // Trigger Game Over (Subscibing to OnColliderHelicopter)
+            // Play SoundFx
+            // Play Particles
+            Destroy(gameObject);
+
+        }
+    }
 }

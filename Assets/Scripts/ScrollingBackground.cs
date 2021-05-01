@@ -9,18 +9,18 @@ public class ScrollingBackground : MonoBehaviour
 	public float scrollSpeed = .1f;
 	private Renderer rend;
 
-	void Start()
-	{
-		PlayFabAuthService.OnLoginSuccess += OnLoginSuccess;
+    private void OnEnable()
+    {
 		rend = GetComponent<Renderer>();
+		StartCoroutine("OffsetTexture");
 	}
 
-    private void OnLoginSuccess(LoginResult result)
+    private void OnDisable()
     {
-		StartCoroutine("OffsetTexture");
+		StopAllCoroutines();
     }
 
-	private IEnumerator OffsetTexture()
+    private IEnumerator OffsetTexture()
     {
         while (true)
         {

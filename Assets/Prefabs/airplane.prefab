@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: 6530912050548568838}
   - component: {fileID: 4990432131501944593}
   m_Layer: 0
-  m_Name: airplane
-  m_TagString: Untagged
+  m_Name: Airplane
+  m_TagString: Collidable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

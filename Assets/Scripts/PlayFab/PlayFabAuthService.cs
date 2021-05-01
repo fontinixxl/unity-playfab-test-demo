@@ -105,6 +105,10 @@ public class PlayFabAuthService
             _playFabId = result.PlayFabId;
             _sessionTicket = result.SessionTicket;
 
+            // Store user's virtual currencies if it was requested
+            if (result.InfoResultPayload.UserVirtualCurrency != null)
+                PlayfabManager.CacheVirtualCurrency(result.InfoResultPayload.UserVirtualCurrency);
+
             //check if we want to get this callback directly or send to event subscribers.
             if (callback == null)
             {
