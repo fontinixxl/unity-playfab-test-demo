@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlaneSpawner : SpawnManager
+public class PlaneSpawner : Spawner
 {
     protected override IEnumerator Spawn()
     {

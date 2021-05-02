@@ -2,20 +2,20 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Coin : Spawnable
+public class Coin : MonoBehaviour
 {
     public float rotationSpeed = 3f;
     public Text displayCoins;
-    private GameManager Manager;
+    private GameManager gameManager;
 
     private void Start()
     {
-        Manager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
-    protected override void PerformPerFrameOperations()
+    private void Update()
     {
-        transform.Translate(-SpawnManager.m_speed * Time.deltaTime, 0, 0, Space.World);
+        transform.Translate(-Spawner.Speed * Time.deltaTime, 0, 0, Space.World);
 
         // infinitely rotate this coin about the Y axis in world space
         transform.Rotate(0, rotationSpeed, 0, Space.World);
@@ -23,7 +23,7 @@ public class Coin : Spawnable
 
     private void OnTriggerEnter(Collider other)
     {
-        Manager.PickUpCoins();
+        gameManager.PickUpCoins();
         gameObject.SetActive(false);
     }
 

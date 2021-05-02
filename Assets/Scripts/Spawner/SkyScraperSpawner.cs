@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkyScraperSpawner : SpawnManager
+public class SkyScraperSpawner : Spawner
 {
     protected override IEnumerator Spawn()
     {
@@ -17,7 +17,7 @@ public class SkyScraperSpawner : SpawnManager
             // 25% chance increase the speed
             if (Random.Range(1, 4) == 1)
             {
-                m_speed += 1f;
+                Speed += 1f;
             }
 
             // wait between 1-5 seconds for a new skyscraper to spawn

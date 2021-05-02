@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public abstract class SpawnManager : MonoBehaviour
+public abstract class Spawner : MonoBehaviour
 {
-    public static float m_speed = 10f;
+    public static float Speed = 10f;
     protected ObjectPooler m_objectPooler;
 
     private void Awake()

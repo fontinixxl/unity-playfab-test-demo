@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject SpawnManager;
+    public GameObject SpawnPool;
     public ScrollingBackground scrollingBackround;
 
     // Panels
@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
         
         Instantiate(helicopter);
 
-        SpawnManager.SetActive(true);
+        SpawnPool.SetActive(true);
         CoinsDisplay.gameObject.SetActive(true); // TODO: replace by HUD Panel
         scrollingBackround.enabled = true;
     }
@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         // Stop spawning planes, coins ans skyscrapers
-        SpawnManager.SetActive(false);
+        SpawnPool.SetActive(false);
         scrollingBackround.enabled = false;
 
         // Disable HUD coins display
