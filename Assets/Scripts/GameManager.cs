@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
         // Reset previous collected coins
         sessionCoins = 0;
         
-        Instantiate(helicopter);
+        Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
 
         SpawnPool.SetActive(true);
         CoinsDisplay.gameObject.SetActive(true); // TODO: replace by HUD Panel
@@ -113,8 +113,7 @@ public class GameManager : MonoBehaviour
         Debug.LogError(error.GenerateErrorReport());
     }
 
-    // TODO: Extrat to Game Over Method
-    // Called when helicopter collisions with a collidable object
+    // Called when helicopter destroyed
     private void GameOver()
     {
         // Stop spawning planes, coins ans skyscrapers

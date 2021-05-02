@@ -5,48 +5,40 @@ using UnityEngine;
 
 public class HeliController : MonoBehaviour
 {
-    public static event Action<int> OnCoinPickedUp;
+    public static event Action OnCoinPickedUp;
     public static event Action OnCollision;
 
 	public float speed = 10.0f;
     private Rigidbody rb;
 	private Vector3 velocity;
-    private int sessionCoins;
 
     void Start()
     {
-        sessionCoins = 0;
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
         velocity = Vector3.zero;
-		velocity.x = Input.GetAxis("Horizontal") * speed;
-        velocity.y = Input.GetAxis("Vertical") * speed;
+		velocity.x = Input.GetAxis("Horizontal");
+        velocity.y = Input.GetAxis("Vertical");
 
-        if (velocity != Vector3.zero)
-        {
-            // constrain movement within the bounds of the camera
-            ConstrainMovementWithinBounds();
-        }
+        if (velocity == Vector3.zero)
+            return;
+
+        // constrain movement within the bounds of the camera
+        ConstrainMovementWithinBounds();
 	}
 
     private void FixedUpdate()
     {
-        const float Epsilon = 0.005f;
-
-        // Don't perform any work if no movement is required.
-        if (velocity.sqrMagnitude <= Epsilon)
-            return;
-
-        rb.velocity = velocity;
+        rb.velocity = velocity * speed;
     }
 
+    // TODO: Unused, but I may use it later
     public void PickupCoin()
     {
-        sessionCoins += 1;
-        OnCoinPickedUp?.Invoke(sessionCoins);
+        OnCoinPickedUp?.Invoke();
         // TODO: trigger audio playback and emit particles from particle system
     }
 
