@@ -10,11 +10,11 @@ public class Airplane : Spawnable {
     protected override void PerformPerFrameOperations()
     {
 		// twice as fast as the skyscraper spawner speed toward the left
-		transform.Translate(-SpawnManager.speed * 2 * Time.deltaTime, 0, 0, Space.World);
+		transform.Translate(-SpawnManager.m_speed * 2 * Time.deltaTime, 0, 0, Space.World);
 	}
     private void OnCollideHelicopter()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 
     private void OnDestroy()

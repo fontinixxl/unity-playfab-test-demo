@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public GameObject GameOverPanel;
     public DisplayCoins CoinsDisplay;
 
+    public GameObject helicopter;
 
     public Text StatusText;
     public Text GameOverCoins;
@@ -54,6 +55,8 @@ public class GameManager : MonoBehaviour
     {
         // Reset previous collected coins
         sessionCoins = 0;
+        
+        Instantiate(helicopter);
 
         SpawnManager.SetActive(true);
         CoinsDisplay.gameObject.SetActive(true); // TODO: replace by HUD Panel

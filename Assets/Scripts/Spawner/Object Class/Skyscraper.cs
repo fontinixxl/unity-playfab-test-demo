@@ -4,6 +4,6 @@ public class Skyscraper : Spawnable {
 
     protected override void PerformPerFrameOperations()
     {
-		transform.Translate(-SpawnManager.speed * Time.deltaTime, 0, 0);
+		transform.Translate(-SpawnManager.m_speed * Time.deltaTime, 0, 0);
     }
 }

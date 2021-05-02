@@ -9,7 +9,7 @@ public abstract class Spawnable : MonoBehaviour
 		// despawn when past left edge of the screen (camera)
 		if (transform.position.x < -25)
 		{
-			Destroy(gameObject);
+			gameObject.SetActive(false);
 		}
 		else
 		{

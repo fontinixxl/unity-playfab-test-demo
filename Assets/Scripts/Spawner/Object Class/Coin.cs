@@ -15,7 +15,7 @@ public class Coin : Spawnable
 
     protected override void PerformPerFrameOperations()
     {
-        transform.Translate(-SpawnManager.speed * Time.deltaTime, 0, 0, Space.World);
+        transform.Translate(-SpawnManager.m_speed * Time.deltaTime, 0, 0, Space.World);
 
         // infinitely rotate this coin about the Y axis in world space
         transform.Rotate(0, rotationSpeed, 0, Space.World);
@@ -24,8 +24,7 @@ public class Coin : Spawnable
     private void OnTriggerEnter(Collider other)
     {
         Manager.PickUpCoins();
-        // TODO: deactivate when object polling
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 
 
