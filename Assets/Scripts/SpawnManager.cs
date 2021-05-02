@@ -1,9 +1,9 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    public GameObject helicopter;
     public Coin coin;
     public Airplane airplane;
     public Skyscraper[] skyscrapers;
@@ -13,10 +13,10 @@ public class SpawnManager : MonoBehaviour
 
     private void OnEnable()
     {
+        Instantiate(helicopter);
         StartCoroutine(SpawnAirplanes());
         StartCoroutine(SpawnCoins());
         StartCoroutine(SpawnSkyscrapers());
-
     }
 
     private void OnDisable()

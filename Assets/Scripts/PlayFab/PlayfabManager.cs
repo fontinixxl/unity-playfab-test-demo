@@ -44,8 +44,7 @@ public static class PlayfabManager
     private static void OnSavePlayerDataSuccess(ExecuteCloudScriptResult result)
     {
         // Return JSON {"PlayFabId":"5AD1658EFE173B88","VirtualCurrency":"SC","BalanceChange":2,"Balance":14}
-        //var JsonUtil = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-        //virtualCurrency.Clear();
+        // TODO: save balance in client
         Debug.Log(JsonWrapper.SerializeObject(result.FunctionResult));
     }
 

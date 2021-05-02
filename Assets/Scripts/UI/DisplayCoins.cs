@@ -5,14 +5,18 @@ public class DisplayCoins : MonoBehaviour
 {
     private Text coinsDisplay;
 
-    private void Start()
+    private void Awake()
     {
         coinsDisplay = GetComponent<Text>();
-        HeliController.OnCoinPickedUp += OnCoinPickedUp;
     }
 
-    private void OnCoinPickedUp(int totalCoins)
+    private void OnEnable()
     {
-        coinsDisplay.text = "Session Coins: " + totalCoins;
+        coinsDisplay.text = "Coins: 0";
+    }
+
+    public void RenderCoins(int coins)
+    {
+        coinsDisplay.text = "Coins: " + coins.ToString();
     }
 }

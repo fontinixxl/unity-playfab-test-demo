@@ -8,23 +8,23 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject spawnManager;
+    public GameObject SpawnManager;
     public ScrollingBackground scrollingBackround;
 
     // Panels
+    public GameObject MainMenu;
     public GameObject GameOverPanel;
-    public GameObject CoinsDisplay;
+    public DisplayCoins CoinsDisplay;
 
-    public GameObject helicopter;
+
+    public Text StatusText;
+    public Text GameOverCoins;
     //public Text TotalCoins;
 
     const string currencyCode = "SC";
     private int sessionCoins;
     private int coins;
 
-    public Text StatusText;
-    //public Text HUDCoins;
-    public Text GameOverCoins;
 
     private PlayFabAuthService _AuthService;
     
@@ -39,12 +39,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         PlayFabAuthService.OnLoginSuccess += OnLoginSuccess;
         PlayFabAuthService.OnPlayFabError += OnPlayFaberror;
-        HeliController.OnCollision += OnHelicopterCollision;
-
-        sessionCoins = 0;
+        HeliController.OnCollision += GameOver;
 
         // Set the data we want at login from what we chose in our meta data.
         _AuthService.InfoRequestParams = InfoRequestParams;
@@ -52,11 +49,21 @@ public class GameManager : MonoBehaviour
         _AuthService.Authenticate();
     }
 
+    // Fired when Start Game button pressed (Main Menu Panel)
+    public void StartGame()
+    {
+        // Reset previous collected coins
+        sessionCoins = 0;
+
+        SpawnManager.SetActive(true);
+        CoinsDisplay.gameObject.SetActive(true); // TODO: replace by HUD Panel
+        scrollingBackround.enabled = true;
+    }
+
     public void PickUpCoins()
     {
         sessionCoins++;
-        CoinsDisplay.GetComponent<Text>().text = "Coins: " + sessionCoins.ToString();
-        //HUDCoins.text = sessionCoins.ToString();
+        CoinsDisplay.RenderCoins(sessionCoins);
     }
 
     /// <summary>
@@ -66,16 +73,8 @@ public class GameManager : MonoBehaviour
     private void OnLoginSuccess(LoginResult result)
     {
         StatusText.text = "Logged In as: " + result.PlayFabId.ToString();
+        MainMenu.SetActive(true);
 
-        scrollingBackround.enabled = true;
-        spawnManager.SetActive(true);
-        CoinsDisplay.SetActive(true);
-
-        // Get coins from server (retrieved login)
-        coins = PlayfabManager.virtualCurrency[currencyCode];
-        //TotalCoins.text = "Total Coins = " + coins;
-
-        Instantiate(helicopter);
         //LoginPanel.SetActive(false);
         //LoggedinPanel.SetActive(true);
         //UserName.text = result.InfoResultPayload.AccountInfo.Username ?? result.PlayFabId;
@@ -113,14 +112,14 @@ public class GameManager : MonoBehaviour
 
     // TODO: Extrat to Game Over Method
     // Called when helicopter collisions with a collidable object
-    private void OnHelicopterCollision()
+    private void GameOver()
     {
         // Stop spawning planes, coins ans skyscrapers
-        spawnManager.SetActive(false);
+        SpawnManager.SetActive(false);
         scrollingBackround.enabled = false;
 
         // Disable HUD coins display
-        CoinsDisplay.SetActive(false);
+        CoinsDisplay.gameObject.SetActive(false);
 
         // save coins collected in PlayFab
         PlayfabManager.SavePlayerData(sessionCoins);
@@ -128,6 +127,11 @@ public class GameManager : MonoBehaviour
         // Show game over menu
         GameOverCoins.text = sessionCoins.ToString();
         GameOverPanel.SetActive(true);
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
     }
 
 }
