@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
@@ -8,22 +7,38 @@ using PlayFab.PfEditor.Json;
 
 public static class PlayfabManager 
 {
-    // Events to subscribe for this service
+    const string coinsCode = "CO";
+    const string livesCode = "LV";
 
-    // Flag set after successfull PlayFab Login
-    public static bool IsLoggedIn = false;
+    // Events to subscribe for this service
+    public static event Action<bool> OnInventoryLoadEvent;
 
     // The user's Title specific DisplayName
-    public static string UserDisplayName = null;
+    //public static string UserDisplayName = null;
 
     public static readonly Dictionary<string, int> virtualCurrency = new Dictionary<string, int>();
+    public static int CoinsBalance => virtualCurrency[coinsCode];
+    public static int LivesBalance => virtualCurrency[livesCode];
+    public static int SecondsToRecharge = 0;
 
-    public static void GetPlayerVirtualCurrency()
+    public static void GetInventory()
     {
         PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), (GetUserInventoryResult result) =>
         {
             virtualCurrency.Clear();
-            CacheVirtualCurrency(result.VirtualCurrency);
+            foreach (var pair in result.VirtualCurrency)
+            {
+                virtualCurrency.Add(pair.Key, pair.Value);
+            }
+
+            bool showCountDown = false;
+            VirtualCurrencyRechargeTime rechargeDetails;
+            if (result.VirtualCurrencyRechargeTimes.TryGetValue(livesCode, out rechargeDetails))
+            {
+                showCountDown = LivesBalance < rechargeDetails.RechargeMax;
+                SecondsToRecharge = rechargeDetails.SecondsToRecharge;
+            }
+            OnInventoryLoadEvent?.Invoke(showCountDown);
 
         }, (error) =>
         {
@@ -31,20 +46,18 @@ public static class PlayfabManager
         });
     }
 
-    public static void SavePlayerData(int coinsCollected)
+    public static void SavePlayerData(int coinsCollected, bool gameOver = false)
     {
         var request = new ExecuteCloudScriptRequest
         {
             FunctionName = "SaveProgress",
-            FunctionParameter = new { CoinsCollected = coinsCollected },
+            FunctionParameter = new { CoinsCollected = coinsCollected, IsGameOver = gameOver },
         };
         PlayFabClientAPI.ExecuteCloudScript(request, OnSavePlayerDataSuccess, OnSavePlayerDataError);
     }
 
     private static void OnSavePlayerDataSuccess(ExecuteCloudScriptResult result)
     {
-        // Return JSON {"PlayFabId":"5AD1658EFE173B88","VirtualCurrency":"SC","BalanceChange":2,"Balance":14}
-        // TODO: save balance in client
         Debug.Log(JsonWrapper.SerializeObject(result.FunctionResult));
     }
 
@@ -52,14 +65,4 @@ public static class PlayfabManager
     {
         Debug.Log(error.GenerateErrorReport());
     }
-
-    public static void CacheVirtualCurrency(Dictionary<string,int> virtualCurrency)
-    {
-        foreach (var pair in virtualCurrency)
-        {
-            PlayfabManager.virtualCurrency.Add(pair.Key, pair.Value);
-            Debug.LogFormat("key {0}, value {1}", pair.Key, pair.Value);
-        }
-    }
-
 }

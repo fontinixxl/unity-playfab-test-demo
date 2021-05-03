@@ -18,9 +18,6 @@ public class GameManager : MonoBehaviour
     public GameObject SpawnPool;
     private int sessionCoins;
     private DisplayCoins displayCoins;
-
-    //const string currencyCode = "SC";
-    //private int coins;
     
     // PlayFab
     private PlayFabAuthService _AuthService;
@@ -49,14 +46,16 @@ public class GameManager : MonoBehaviour
         _AuthService.Authenticate();
     }
 
+    private void OnLoginSuccess(LoginResult result)
+    {
+        StatusText.text = "Logged In as: " + result.PlayFabId.ToString();
+        MainMenu.SetActive(true);
+    }
+
     // Fired when Start Game button pressed (Main Menu Panel)
     public void StartGame()
     {
-        // Reset previous collected coins
-        sessionCoins = 0;
-
         StartGameEvent?.Invoke();
-
         Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
 
         StatusBar.SetActive(true);
@@ -66,16 +65,17 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         GameOverEvent?.Invoke();
-
         // Disable Status Bar coins display
         StatusBar.SetActive(false);
 
         // Save coins collected in PlayFab
-        PlayfabManager.SavePlayerData(sessionCoins);
+        PlayfabManager.SavePlayerData(sessionCoins, true);
 
         // Show game over menu
         GameOverCoins.text = sessionCoins.ToString();
         GameOverPanel.SetActive(true);
+        // Reset previous collected coins
+        sessionCoins = 0;
     }
 
     public void PickUpCoins()
@@ -84,24 +84,6 @@ public class GameManager : MonoBehaviour
         displayCoins.RenderCoins(sessionCoins);
     }
 
-    /// <summary>
-    /// Login Successfully
-    /// </summary>
-    /// <param name="result"></param>
-    private void OnLoginSuccess(LoginResult result)
-    {
-        StatusText.text = "Logged In as: " + result.PlayFabId.ToString();
-        MainMenu.SetActive(true);
-
-        //LoginPanel.SetActive(false);
-        //LoggedinPanel.SetActive(true);
-        //UserName.text = result.InfoResultPayload.AccountInfo.Username ?? result.PlayFabId;
-    }
-
-    /// <summary>
-    /// Error handling for when Login returns errors.
-    /// </summary>
-    /// <param name="error"></param>
     private void OnPlayFaberror(PlayFabError error)
     {
         //Basic error cases on Login

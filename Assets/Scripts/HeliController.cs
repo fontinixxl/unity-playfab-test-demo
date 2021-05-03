@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HeliController : MonoBehaviour
 {
-    public static event Action OnCoinPickedUp;
     public static event Action OnCollision;
 
 	public float speed = 10.0f;
     private Rigidbody rb;
 	private Vector3 velocity;
+    private GameManager gameManager;
 
     void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -35,13 +34,6 @@ public class HeliController : MonoBehaviour
         rb.velocity = velocity * speed;
     }
 
-    // TODO: Unused, but I may use it later
-    public void PickupCoin()
-    {
-        OnCoinPickedUp?.Invoke();
-        // TODO: trigger audio playback and emit particles from particle system
-    }
-
     private void ConstrainMovementWithinBounds()
     {
         Vector3 pos = Camera.main.WorldToViewportPoint(transform.position);
@@ -60,7 +52,11 @@ public class HeliController : MonoBehaviour
             // Play SoundFx
             // Play Particles
             Destroy(gameObject);
-
+        }
+        else if (other.CompareTag("Coin"))
+        {
+            gameManager.PickUpCoins();
+            other.gameObject.SetActive(false);
         }
     }
 }

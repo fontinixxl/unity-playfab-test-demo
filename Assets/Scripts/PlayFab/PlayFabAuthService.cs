@@ -92,7 +92,7 @@ public class PlayFabAuthService
         }
     }
 
-    private void SilentlyAuthenticate(System.Action<LoginResult> callback = null)
+    private void SilentlyAuthenticate(Action<LoginResult> callback = null)
     {
         PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest()
         {
@@ -104,10 +104,6 @@ public class PlayFabAuthService
             //Store Identity and session
             _playFabId = result.PlayFabId;
             _sessionTicket = result.SessionTicket;
-
-            // Store user's virtual currencies if it was requested
-            if (result.InfoResultPayload.UserVirtualCurrency != null)
-                PlayfabManager.CacheVirtualCurrency(result.InfoResultPayload.UserVirtualCurrency);
 
             //check if we want to get this callback directly or send to event subscribers.
             if (callback == null)
