@@ -12,11 +12,11 @@ public class DisplayCoins : MonoBehaviour
 
     private void OnEnable()
     {
-        coinsDisplay.text = "Coins: 0";
+        coinsDisplay.text = "0";
     }
 
     public void RenderCoins(int coins)
     {
-        coinsDisplay.text = "Coins: " + coins.ToString();
+        coinsDisplay.text = coins.ToString();
     }
 }

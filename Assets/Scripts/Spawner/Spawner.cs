@@ -19,17 +19,24 @@ public abstract class Spawner : MonoBehaviour
         m_objectPooler = GetComponent<ObjectPooler>();
     }
 
-    private void OnEnable()
+    private void Start()
+    {
+        GameManager.StartGameEvent += StartSpawning;
+        GameManager.GameOverEvent += StopSpawning;
+    }
+
+    private void StartSpawning()
     {
         Speed = 10f;
         StartCoroutine(Spawn());
     }
 
-    private void OnDisable()
+    private void StopSpawning()
     {
         StopAllCoroutines();
         foreach (Transform child in transform) child.gameObject.SetActive(false);
     }
+
 
     protected abstract IEnumerator Spawn();
 }

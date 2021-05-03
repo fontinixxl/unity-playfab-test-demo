@@ -1,40 +1,39 @@
 ﻿using PlayFab;
 using PlayFab.ClientModels;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject SpawnPool;
-    public ScrollingBackground scrollingBackround;
-
-    // Panels
+    // UI
     public GameObject MainMenu;
     public GameObject GameOverPanel;
-    public DisplayCoins CoinsDisplay;
-
-    public GameObject helicopter;
-
+    public GameObject StatusBar;
     public Text StatusText;
     public Text GameOverCoins;
-    //public Text TotalCoins;
 
-    const string currencyCode = "SC";
+    // Gameplay Elements
+    public GameObject helicopter;
+    public GameObject SpawnPool;
     private int sessionCoins;
-    private int coins;
+    private DisplayCoins displayCoins;
 
-
-    private PlayFabAuthService _AuthService;
+    //const string currencyCode = "SC";
+    //private int coins;
     
-    // Settings for what data to get from playfab on login
+    // PlayFab
+    private PlayFabAuthService _AuthService;
     public GetPlayerCombinedInfoRequestParams InfoRequestParams;
+    
+    // Events to subscribe
+    public static event Action StartGameEvent;
+    public static event Action GameOverEvent;
 
     private void Awake()
     {
         _AuthService = PlayFabAuthService.Instance;
+        displayCoins = StatusBar.GetComponentInChildren<DisplayCoins>();
     }
 
     // Start is called before the first frame update
@@ -55,18 +54,34 @@ public class GameManager : MonoBehaviour
     {
         // Reset previous collected coins
         sessionCoins = 0;
-        
+
+        StartGameEvent?.Invoke();
+
         Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
 
-        SpawnPool.SetActive(true);
-        CoinsDisplay.gameObject.SetActive(true); // TODO: replace by HUD Panel
-        scrollingBackround.enabled = true;
+        StatusBar.SetActive(true);
+    }
+
+    // Called when helicopter destroyed
+    private void GameOver()
+    {
+        GameOverEvent?.Invoke();
+
+        // Disable Status Bar coins display
+        StatusBar.SetActive(false);
+
+        // Save coins collected in PlayFab
+        PlayfabManager.SavePlayerData(sessionCoins);
+
+        // Show game over menu
+        GameOverCoins.text = sessionCoins.ToString();
+        GameOverPanel.SetActive(true);
     }
 
     public void PickUpCoins()
     {
         sessionCoins++;
-        CoinsDisplay.RenderCoins(sessionCoins);
+        displayCoins.RenderCoins(sessionCoins);
     }
 
     /// <summary>
@@ -113,23 +128,6 @@ public class GameManager : MonoBehaviour
         Debug.LogError(error.GenerateErrorReport());
     }
 
-    // Called when helicopter destroyed
-    private void GameOver()
-    {
-        // Stop spawning planes, coins ans skyscrapers
-        SpawnPool.SetActive(false);
-        scrollingBackround.enabled = false;
-
-        // Disable HUD coins display
-        CoinsDisplay.gameObject.SetActive(false);
-
-        // save coins collected in PlayFab
-        PlayfabManager.SavePlayerData(sessionCoins);
-
-        // Show game over menu
-        GameOverCoins.text = sessionCoins.ToString();
-        GameOverPanel.SetActive(true);
-    }
 
     public void ExitGame()
     {

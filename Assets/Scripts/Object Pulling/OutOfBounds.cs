@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OutOfBounds : MonoBehaviour
 {
-    // Deactivate any gameobject that goes out of bounds
+    // Despawn game objects that collide with the sensor
     private void OnTriggerEnter(Collider other)
     {
         other.gameObject.SetActive(false);

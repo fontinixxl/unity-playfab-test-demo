@@ -1,6 +1,4 @@
-﻿using PlayFab.ClientModels;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class ScrollingBackground : MonoBehaviour
@@ -8,19 +6,26 @@ public class ScrollingBackground : MonoBehaviour
 
 	public float scrollSpeed = .1f;
 	private Renderer rend;
+    private Coroutine scrollBackground;
 
-    private void OnEnable()
+    private void Start()
     {
-		rend = GetComponent<Renderer>();
-		StartCoroutine("OffsetTexture");
-	}
-
-    private void OnDisable()
-    {
-		StopAllCoroutines();
+        rend = GetComponent<Renderer>();
+        GameManager.StartGameEvent += StartSpawning;
+        GameManager.GameOverEvent += StopSpawning;
     }
 
-    private IEnumerator OffsetTexture()
+    private void StartSpawning()
+    {
+        scrollBackground = StartCoroutine(ScrollBackground());
+    }
+
+    private void StopSpawning()
+    {
+        StopCoroutine(scrollBackground);
+    }
+
+    private IEnumerator ScrollBackground()
     {
         while (true)
         {
