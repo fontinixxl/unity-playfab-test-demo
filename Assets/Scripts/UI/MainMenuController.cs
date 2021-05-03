@@ -11,23 +11,32 @@ public class MainMenuController : MonoBehaviour
     public Button StartButton;
     public Text livesRegen;
     public Text livesRegenLabel;
+    public Button BuyLivesButton;
+
     private Coroutine timer;
 
-    void OnEnable()
+    private void Start()
     {
         PlayfabManager.OnInventoryLoadEvent += OnInventoryLoad;
-
+        BuyLivesButton.onClick.AddListener(OnClickBuyLives);
+    }
+    void OnEnable()
+    {
         ClearTextLabels();
         PlayfabManager.GetInventory();
         StartButton.interactable = false;
+        BuyLivesButton.interactable = false;
     }
 
     private void OnInventoryLoad(bool showCountdown)
     {
         ClearTextLabels();
+
         Lives.text = "x " + PlayfabManager.LivesBalance;
         Coins.text = "x " + PlayfabManager.CoinsBalance;
+
         StartButton.interactable = PlayfabManager.LivesBalance > 0;
+        BuyLivesButton.interactable = PlayfabManager.CoinsBalance >= PlayfabManager.livesBundlePrice;
 
         if (showCountdown)
         {
@@ -35,6 +44,7 @@ public class MainMenuController : MonoBehaviour
         }
         else
         {
+            StopCountdownIfOn();
             livesRegenLabel.text = "Max lives!";
         }
     }
@@ -57,7 +67,18 @@ public class MainMenuController : MonoBehaviour
         PlayfabManager.GetInventory();
     }
 
+    private void OnClickBuyLives()
+    {
+        BuyLivesButton.interactable = false;
+        PlayfabManager.TryBuyLives();
+    }
+
     private void OnDisable()
+    {
+        StopCountdownIfOn();
+    }
+
+    private void StopCountdownIfOn()
     {
         if (timer != null)
             StopCoroutine(timer);

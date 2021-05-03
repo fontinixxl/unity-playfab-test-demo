@@ -7,9 +7,6 @@ using PlayFab.PfEditor.Json;
 
 public static class PlayfabManager 
 {
-    const string coinsCode = "CO";
-    const string livesCode = "LV";
-
     // Events to subscribe for this service
     public static event Action<bool> OnInventoryLoadEvent;
 
@@ -20,6 +17,12 @@ public static class PlayfabManager
     public static int CoinsBalance => virtualCurrency[coinsCode];
     public static int LivesBalance => virtualCurrency[livesCode];
     public static int SecondsToRecharge = 0;
+
+    // PLAYFAB DATA
+    const string extraLivesBundleId = "extraLivesBundle";
+    public const int livesBundlePrice = 10;
+    const string coinsCode = "CO";
+    const string livesCode = "LV";
 
     public static void GetInventory()
     {
@@ -53,16 +56,41 @@ public static class PlayfabManager
             FunctionName = "SaveProgress",
             FunctionParameter = new { CoinsCollected = coinsCollected, IsGameOver = gameOver },
         };
-        PlayFabClientAPI.ExecuteCloudScript(request, OnSavePlayerDataSuccess, OnSavePlayerDataError);
+        PlayFabClientAPI.ExecuteCloudScript(request, OnSavePlayerDataSuccess, OnApiCallError);
     }
 
-    private static void OnSavePlayerDataSuccess(ExecuteCloudScriptResult result)
+    public static void TryBuyLives()
+    {
+        Debug.Log("Purchaseing Lives...");
+        PurchaseItemRequest request = new PurchaseItemRequest() { ItemId = extraLivesBundleId, VirtualCurrency = coinsCode, Price = livesBundlePrice };
+        PlayFabClientAPI.PurchaseItem(request, TryBuyLivesCallback, OnApiCallError);
+    }
+
+    static void TryBuyLivesCallback(PurchaseItemResult result)
+    {
+        Debug.Log("Lives Purchased!");
+        GetInventory();
+    }
+
+    static void OnApiCallError(PlayFabError err)
+    {
+        string http = string.Format("HTTP:{0}", err.HttpCode);
+        string message = string.Format("ERROR:{0} -- {1}", err.Error, err.ErrorMessage);
+        string details = string.Empty;
+
+        if (err.ErrorDetails != null)
+        {
+            foreach (var detail in err.ErrorDetails)
+            {
+                details += string.Format("{0} \n", detail.ToString());
+            }
+        }
+
+        Debug.LogError(string.Format("{0}\n {1}\n {2}\n", http, message, details));
+    }
+
+    static void OnSavePlayerDataSuccess(ExecuteCloudScriptResult result)
     {
         Debug.Log(JsonWrapper.SerializeObject(result.FunctionResult));
-    }
-
-    private static void OnSavePlayerDataError(PlayFabError error)
-    {
-        Debug.Log(error.GenerateErrorReport());
     }
 }
