@@ -9,8 +9,8 @@ public class MainMenuController : MonoBehaviour
     public Text Lives;
     public Text Coins;
     public Button StartButton;
-    public Text livesRegen;
-    public Text livesRegenLabel;
+    public Text CountDownTimerText;
+    public Text CountDownTimerLaber;
     public Button BuyLivesButton;
 
     private Coroutine timer;
@@ -45,23 +45,23 @@ public class MainMenuController : MonoBehaviour
         else
         {
             StopCountdownIfOn();
-            livesRegenLabel.text = "Max lives!";
+            CountDownTimerLaber.text = "Max lives!";
         }
     }
 
     private IEnumerator CountDown()
     {
-        livesRegenLabel.text = "Next lives in";
+        CountDownTimerLaber.text = "Next lives in";
         DateTime nextFreeTicket = DateTime.Now.AddSeconds(PlayfabManager.SecondsToRecharge);
 
         while (nextFreeTicket.Subtract(DateTime.Now).TotalSeconds > 0)
         {
-            livesRegen.text = string.Format(" {0:n0} sec", nextFreeTicket.Subtract(DateTime.Now).TotalSeconds);
+            CountDownTimerText.text = string.Format(" {0:n0} sec", nextFreeTicket.Subtract(DateTime.Now).TotalSeconds);
             yield return null;
         }
 
-        livesRegen.text = string.Empty;
-        livesRegenLabel.text = "Fetching lives..";
+        CountDownTimerText.text = string.Empty;
+        CountDownTimerLaber.text = "Fetching lives..";
         yield return new WaitForSeconds(1);
 
         PlayfabManager.GetInventory();
@@ -81,14 +81,17 @@ public class MainMenuController : MonoBehaviour
     private void StopCountdownIfOn()
     {
         if (timer != null)
+        {
             StopCoroutine(timer);
+            CountDownTimerText.text = string.Empty;
+        }
     }
 
     private void ClearTextLabels()
     {
         string loading = "Loading..";
-        livesRegenLabel.text = loading;
-        livesRegen.text = string.Empty;
+        CountDownTimerLaber.text = loading;
+        CountDownTimerText.text = string.Empty;
         Lives.text = loading;
         Coins.text = loading;
     }
