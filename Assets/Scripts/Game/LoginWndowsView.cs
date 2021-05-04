@@ -50,6 +50,18 @@ public class LoginWndowsView : MonoBehaviour
             });
     }
 
+    // The logic here is relevent when we are coming from Game Over menu
+    // and the user is still playing as a Guest. This is a mesure to enforce the player
+    // to register using email as a recovery method.
+    // TODO: Display a message encouraging the player to register
+    private void OnEnable()
+    {
+        if (!PlayfabManager.IsLoggedIn) return;
+
+        StatusText.text = string.Empty;
+        PlayAsGuestButton.GetComponentInChildren<Text>().text = "Continue as a Guest";
+    }
+
     public void Start()
     {
         // Hide all our panels until we know what UI to display
@@ -79,7 +91,7 @@ public class LoginWndowsView : MonoBehaviour
     /// Login Successfully - Goes to next screen.
     /// </summary>
     /// <param name="result"></param>
-    private void OnLoginSuccess(PlayFab.ClientModels.LoginResult result)
+    private void OnLoginSuccess(LoginResult result)
     {
         Debug.LogFormat("Logged In as: {0}", result.PlayFabId);
         Panel.SetActive(false);
@@ -130,15 +142,6 @@ public class LoginWndowsView : MonoBehaviour
     {
         //Here we have choses what to do when AuthType is None.
         Panel.SetActive(true);
-        /*
-         * Optionally we could Not do the above and force login silently
-         * 
-         * _AuthService.Authenticate(Authtypes.Silent);
-         * 
-         * This example, would auto log them in by device ID and they would
-         * never see any UI for Authentication.
-         * 
-         */
     }
 
     /// <summary>
@@ -147,9 +150,16 @@ public class LoginWndowsView : MonoBehaviour
     /// </summary>
     private void OnPlayAsGuestClicked()
     {
+        // If we are already logged in as a guest and the user want to continue as it's,
+        // bring them to the main menu; no necessary to authenticate.
+        if (PlayfabManager.IsLoggedIn)
+        {
+            Panel.SetActive(false);
+            GameManager.Instance.DisplayMainMenu();
+            return;
+        }
 
         StatusText.text = "Logging In As Guest ...";
-
         _AuthService.Authenticate(Authtypes.Silent);
     }
 

@@ -23,7 +23,6 @@ public class GameManager : Singleton<GameManager>
     private AudioSource audioSource;
     private bool gamePlaying = false;
     private float roundTimer = 0;
-    private bool firstAuthAttempt = true;
 
     private Dictionary<string, int> GameStats = new Dictionary<string, int>();
 
@@ -53,14 +52,6 @@ public class GameManager : Singleton<GameManager>
 
     public void DisplayMainMenu()
     {
-        if (!firstAuthAttempt && PlayFabAuthService.Instance.AuthType == Authtypes.Silent)
-        {
-            // Show Login Menu to enforce they login/register with a secured option
-            LoginPanel.SetActive(true);
-            return;
-        }
-
-        firstAuthAttempt = false;
         MainMenuPanel.SetActive(true);
     }
 
@@ -82,6 +73,19 @@ public class GameManager : Singleton<GameManager>
 
         gamePlaying = true;
 
+    }
+
+    public void ReturningFromGameOverMenu()
+    {
+        // If the user is not yet logged in useding email/password, show login menu
+        if (PlayFabAuthService.Instance.AuthType.Equals(Authtypes.Silent))
+        {
+            LoginPanel.SetActive(true);
+        }
+        else
+        {
+            DisplayMainMenu();
+        }
     }
 
     // Invoked when helicopter destroyed
@@ -162,32 +166,6 @@ public class GameManager : Singleton<GameManager>
         PlayfabManager.UpdateStatistics(updateStats);
     }
     #endregion
-
-    //private void OnPlayFaberror(PlayFabError error)
-    //{
-    //    //Basic error cases on Login
-    //    switch (error.Error)
-    //    {
-    //        case PlayFabErrorCode.InvalidEmailAddress:
-    //        case PlayFabErrorCode.InvalidPassword:
-    //        case PlayFabErrorCode.InvalidEmailOrPassword:
-    //            StatusText.text = "Invalid Email or Password";
-    //            break;
-
-    //        case PlayFabErrorCode.AccountNotFound:
-    //            StatusText.text = "Account Not Found";
-    //            //RegisterPanel.SetActive(true);
-    //            //SigninPanel.SetActive(false);
-    //            return;
-    //        default:
-    //            StatusText.text = error.GenerateErrorReport();
-    //            break;
-    //    }
-
-    //    //Report to debug console
-    //    Debug.Log(error.Error);
-    //    Debug.LogError(error.GenerateErrorReport());
-    //}
 
     public void ExitGame()
     {
