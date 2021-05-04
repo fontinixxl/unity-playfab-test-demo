@@ -66,7 +66,7 @@ public class GameManager : Singleton<GameManager>
 
         StartGameEvent?.Invoke();
         // TODO: Move to SoundManager
-        audioSource.Play();
+        //audioSource.Play();
 
         Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
         StatusBarPanel.SetActive(true);
@@ -93,7 +93,7 @@ public class GameManager : Singleton<GameManager>
     {
         gamePlaying = false;
         // TODO: Move to SoundManager
-        audioSource.Stop();
+        //audioSource.Stop();
         GameOverEvent?.Invoke();
 
         // Disable Status Bar coins display
