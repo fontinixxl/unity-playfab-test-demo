@@ -71,6 +71,63 @@ public static class PlayfabManager
         GetInventory();
     }
 
+    ////////////////////////////////////////////////////////////////
+    /// Update the user's game stats in bulk
+    ///
+    /// This uses a custom event to trigger cloudscript which
+    /// performs the stat updates
+    ///
+    public static void UpdateStatistics(Dictionary<string, object> values)
+    {
+        PlayFabClientAPI.WritePlayerEvent(
+            // Request
+            new WriteClientPlayerEventRequest
+            {
+                EventName = "update_statistics",
+                Body = new Dictionary<string, object>
+                {
+                    { "stats", values }
+                }
+            },
+            // Success
+            (WriteEventResponse response) =>
+            {
+                Debug.Log("WritePlayerEvent (UpdateStatistics) completed.");
+            },
+            // Failure
+            OnApiCallError
+            );
+    }
+
+    ////////////////////////////////////////////////////////////////
+    /// Update a user's individual game stat
+    ///
+    /// This uses a custom event to trigger cloudscript which
+    /// performs the stat updates
+    ///
+    public static void UpdateStatistic(string stat, int value)
+    {
+        PlayFabClientAPI.WritePlayerEvent(
+            // Request
+            new WriteClientPlayerEventRequest
+            {
+                EventName = "update_statistic",
+                Body = new Dictionary<string, object>
+                {
+                    { "stat_name", stat },
+                    { "value", value }
+                }
+            },
+            // Success
+            (WriteEventResponse response) =>
+            {
+                Debug.Log("WritePlayerEvent (UpdateStatistic) completed.");
+            },
+            // Failure
+            OnApiCallError
+            );
+    }
+
     static void OnApiCallError(PlayFabError err)
     {
         string http = string.Format("HTTP:{0}", err.HttpCode);
