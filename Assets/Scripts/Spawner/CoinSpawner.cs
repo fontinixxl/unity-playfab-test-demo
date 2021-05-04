@@ -9,14 +9,14 @@ public class CoinSpawner : Spawner
     private static readonly float minYpos = -6.5f;
     private static readonly float maxYpos = 8f;
     private static readonly int maxCoins = Mathf.RoundToInt((Mathf.Abs(minYpos) + Mathf.Abs(maxYpos)) / coinsDistance);
+
     private List<float> coinsPosY;
+    public int maxCoinsRow = 4;
 
-    public int maxCoinsRow = 6;
-
-    private void Awake()
+    protected override void Awake()
     {
-        coinsPosY = new List<float>(maxCoins);
         base.Awake();
+        coinsPosY = new List<float>(maxCoins);
     }
 
     protected override IEnumerator Spawn()

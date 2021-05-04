@@ -1,23 +1,29 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class HeliController : MonoBehaviour
 {
     public static event Action OnCollision;
 
-	public float speed = 10.0f;
+    public float speed = 10.0f;
+    public ParticleSystem explosionParticle;
+    public ParticleSystem fireworksParticle;
+
     private Rigidbody rb;
 	private Vector3 velocity;
-    private GameManager gameManager;
+    private bool isGameOver;
 
     void Start()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        isGameOver = false;
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
+        if (isGameOver) return;
+
         velocity = Vector3.zero;
 		velocity.x = Input.GetAxis("Horizontal");
         velocity.y = Input.GetAxis("Vertical");
@@ -44,19 +50,36 @@ public class HeliController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (isGameOver) return;
+
         if (other.CompareTag("Collidable"))
         {
-            OnCollision?.Invoke();
-            // TODO:
-            // Trigger Game Over (Subscibing to OnColliderHelicopter)
-            // Play SoundFx
-            // Play Particles
-            Destroy(gameObject);
+            isGameOver = true;
+            StartCoroutine(Explode());
         }
         else if (other.CompareTag("Coin"))
         {
-            gameManager.PickUpCoins();
+            fireworksParticle.Play();
+            SoundManager.Instance.PlaySoundEffect(SoundEffect.PickUpCoin);
+            GameManager.Instance.PickUpCoins();
             other.gameObject.SetActive(false);
         }
+    }
+
+    private IEnumerator Explode()
+    {
+        // Play particles and SoundFX
+        explosionParticle.Play();
+        SoundManager.Instance.PlaySoundEffect(SoundEffect.Explosion);
+        yield return new WaitForSeconds(0.3f);
+
+        // Hide the helicopter after 0.3 sec
+        foreach (var childMesh in GetComponentsInChildren<MeshRenderer>())
+            childMesh.gameObject.SetActive(false);
+        yield return new WaitForSeconds(2f);
+
+        // Invoke Game Over and destroy gameobject after 2 sec
+        OnCollision?.Invoke();
+        Destroy(gameObject);
     }
 }

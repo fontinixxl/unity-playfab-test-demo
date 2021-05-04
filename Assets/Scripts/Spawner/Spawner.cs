@@ -14,7 +14,7 @@ public abstract class Spawner : MonoBehaviour
     [SerializeField]
     protected float maxSpawnTime = 5;
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         m_objectPooler = GetComponent<ObjectPooler>();
     }

@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
     // UI
     public GameObject MainMenu;
@@ -13,11 +13,12 @@ public class GameManager : MonoBehaviour
     public Text StatusText;
     public Text GameOverCoins;
 
-    // Gameplay Elements
+    // Game Elements
     public GameObject helicopter;
     public GameObject SpawnPool;
     private int sessionCoins;
     private DisplayCoins displayCoins;
+    private AudioSource audioSource;
     
     // PlayFab
     private PlayFabAuthService _AuthService;
@@ -27,10 +28,12 @@ public class GameManager : MonoBehaviour
     public static event Action StartGameEvent;
     public static event Action GameOverEvent;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         _AuthService = PlayFabAuthService.Instance;
         displayCoins = StatusBar.GetComponentInChildren<DisplayCoins>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Start is called before the first frame update
@@ -52,19 +55,23 @@ public class GameManager : MonoBehaviour
         MainMenu.SetActive(true);
     }
 
-    // Fired when Start Game button pressed (Main Menu Panel)
+    // Invoked when Start Game button pressed (Main Menu Panel)
     public void StartGame()
     {
         StartGameEvent?.Invoke();
+        audioSource.Play();
+
         Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
 
         StatusBar.SetActive(true);
     }
 
-    // Called when helicopter destroyed
+    // Invoked when helicopter destroyed
     private void GameOver()
     {
+        audioSource.Stop();
         GameOverEvent?.Invoke();
+
         // Disable Status Bar coins display
         StatusBar.SetActive(false);
 
@@ -74,6 +81,7 @@ public class GameManager : MonoBehaviour
         // Show game over menu
         GameOverCoins.text = sessionCoins.ToString();
         GameOverPanel.SetActive(true);
+
         // Reset previous collected coins
         sessionCoins = 0;
     }
