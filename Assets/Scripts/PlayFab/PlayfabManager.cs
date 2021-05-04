@@ -24,7 +24,8 @@ public static class PlayfabManager
 
     // PLAYFAB DATA
     const string extraLivesBundleId = "extraLivesBundle";
-    public const int livesBundlePrice = 10;
+    // TODO: This should be updated from the server and not hardcoded in the client..
+    public const int livesBundlePrice = 20;
     const string coinsCode = "CO";
     const string livesCode = "LV";
 

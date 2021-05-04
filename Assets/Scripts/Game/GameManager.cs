@@ -12,7 +12,6 @@ public class GameManager : Singleton<GameManager>
     public GameObject LoginPanel;
     public GameObject GameOverPanel;
     public GameObject StatusBarPanel;
-    public Text StatusText;
     public Text GameOverCoins;
 
     // Game Elements
@@ -20,10 +19,11 @@ public class GameManager : Singleton<GameManager>
     public GameObject SpawnPool;
     private int sessionCoins;
     private DisplayCoins displayCoins;
-    private AudioSource audioSource;
     private bool gamePlaying = false;
     private float roundTimer = 0;
 
+    // PlayFab
+    public bool HaveSetUserName = false;
     private Dictionary<string, int> GameStats = new Dictionary<string, int>();
 
     // Events to subscribe
@@ -34,7 +34,6 @@ public class GameManager : Singleton<GameManager>
     {
         base.Awake();
         displayCoins = StatusBarPanel.GetComponentInChildren<DisplayCoins>();
-        audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
@@ -65,8 +64,6 @@ public class GameManager : Singleton<GameManager>
         PlayfabManager.UpdateStatistic("games_played", 1);
 
         StartGameEvent?.Invoke();
-        // TODO: Move to SoundManager
-        //audioSource.Play();
 
         Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
         StatusBarPanel.SetActive(true);
@@ -92,8 +89,7 @@ public class GameManager : Singleton<GameManager>
     private void GameOver()
     {
         gamePlaying = false;
-        // TODO: Move to SoundManager
-        //audioSource.Stop();
+
         GameOverEvent?.Invoke();
 
         // Disable Status Bar coins display

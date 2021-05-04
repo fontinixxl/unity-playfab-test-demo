@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainMenuController : MonoBehaviour
+public class MainMenuController : Singleton<MainMenuController>
 {
     public Text Lives;
     public Text Coins;
@@ -12,18 +12,44 @@ public class MainMenuController : MonoBehaviour
     public Text CountDownTimerText;
     public Text CountDownTimerLaber;
     public Button BuyLivesButton;
+    public Text UserName;
+    public Text BundlePrice;
 
     private Coroutine timer;
+    public bool HaveSetUserName = false;
+
 
     private void Start()
     {
         PlayfabManager.OnInventoryLoadEvent += OnInventoryLoad;
         BuyLivesButton.onClick.AddListener(OnClickBuyLives);
+        BundlePrice.text = string.Format("*{0} Coins", PlayfabManager.livesBundlePrice);
     }
+
+    private void Update()
+    {
+        if (!HaveSetUserName)
+        {
+            if (PlayfabManager.IsLoggedIn && PlayfabManager.IsAccountInfoLoaded)
+            {
+                if (!string.IsNullOrEmpty(PlayfabManager.UserDisplayName))
+                {
+                    UserName.text = PlayfabManager.UserDisplayName;
+                }
+                else
+                {
+                    UserName.text = "Visit Options to set your user name!";
+                }
+
+                HaveSetUserName = true;
+            }
+        }
+    }
+
     void OnEnable()
     {
-        ClearTextLabels();
         PlayfabManager.GetInventory();
+        ClearTextLabels();
         StartButton.interactable = false;
         BuyLivesButton.interactable = false;
     }
@@ -89,11 +115,10 @@ public class MainMenuController : MonoBehaviour
 
     private void ClearTextLabels()
     {
-        string loading = "Loading..";
-        CountDownTimerLaber.text = loading;
+        CountDownTimerLaber.text = string.Empty;
         CountDownTimerText.text = string.Empty;
-        Lives.text = loading;
-        Coins.text = loading;
+        Lives.text = string.Empty;
+        Coins.text = string.Empty;
     }
 
 }

@@ -118,6 +118,8 @@ public class PlayFabAuthService
         PlayerPrefs.DeleteKey(_LoginRememberKey);
         PlayerPrefs.DeleteKey(_PlayFabRememberMeIdKey);
         PlayerPrefs.DeleteKey(_PlayFabAuthTypeKey);
+
+        Debug.Log("User SignIn data cleared..");
     }
 
     /// <summary>
