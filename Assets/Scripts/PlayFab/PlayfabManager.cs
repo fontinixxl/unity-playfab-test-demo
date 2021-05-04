@@ -22,7 +22,6 @@ public static class PlayfabManager
     public static int LivesBalance => virtualCurrency[livesCode];
     public static int SecondsToRecharge = 0;
 
-    // PLAYFAB DATA
     const string extraLivesBundleId = "extraLivesBundle";
     // TODO: This should be updated from the server and not hardcoded in the client..
     public const int livesBundlePrice = 20;
@@ -176,7 +175,6 @@ public static class PlayfabManager
         Debug.Log("Lives Purchased!");
         GetInventory();
     }
-
 
 
     static void OnApiCallError(PlayFabError err)

@@ -53,7 +53,7 @@ public class LoginWndowsView : MonoBehaviour
     // The logic here is relevent when we are coming from Game Over menu
     // and the user is still playing as a Guest. This is a mesure to enforce the player
     // to register using email as a recovery method.
-    // TODO: Display a message encouraging the player to register
+    // TODO: Display a message encouraging the player to sign in
     private void OnEnable()
     {
         if (!PlayfabManager.IsLoggedIn) return;
@@ -97,9 +97,7 @@ public class LoginWndowsView : MonoBehaviour
         Panel.SetActive(false);
 
         PlayfabManager.IsLoggedIn = true;
-        //PlayfabManager.LoadUserData();
         PlayfabManager.LoadAccountData();
-        //PlayfabManager.LoadTitleData();
 
         GameManager.Instance.DisplayMainMenu();
     }
