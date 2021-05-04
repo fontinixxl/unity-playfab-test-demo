@@ -8,9 +8,10 @@ using UnityEngine.UI;
 public class GameManager : Singleton<GameManager>
 {
     // UI
-    public GameObject MainMenu;
+    public GameObject MainMenuPanel;
+    public GameObject LoginPanel;
     public GameObject GameOverPanel;
-    public GameObject StatusBar;
+    public GameObject StatusBarPanel;
     public Text StatusText;
     public Text GameOverCoins;
 
@@ -22,10 +23,8 @@ public class GameManager : Singleton<GameManager>
     private AudioSource audioSource;
     private bool gamePlaying = false;
     private float roundTimer = 0;
+    private bool firstAuthAttempt = true;
 
-    // PlayFab
-    private PlayFabAuthService _AuthService;
-    public GetPlayerCombinedInfoRequestParams InfoRequestParams;
     private Dictionary<string, int> GameStats = new Dictionary<string, int>();
 
     // Events to subscribe
@@ -35,21 +34,13 @@ public class GameManager : Singleton<GameManager>
     protected override void Awake()
     {
         base.Awake();
-        _AuthService = PlayFabAuthService.Instance;
-        displayCoins = StatusBar.GetComponentInChildren<DisplayCoins>();
+        displayCoins = StatusBarPanel.GetComponentInChildren<DisplayCoins>();
         audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
     {
-        PlayFabAuthService.OnLoginSuccess += OnLoginSuccess;
-        PlayFabAuthService.OnPlayFabError += OnPlayFaberror;
         HeliController.OnCollision += GameOver;
-
-        // Set the data we want at login from what we chose in our meta data.
-        _AuthService.InfoRequestParams = InfoRequestParams;
-        // Start the authentication process.
-        _AuthService.Authenticate();
     }
 
     private void Update()
@@ -60,10 +51,17 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    private void OnLoginSuccess(LoginResult result)
+    public void DisplayMainMenu()
     {
-        StatusText.text = "Logged In as: " + result.PlayFabId.ToString();
-        MainMenu.SetActive(true);
+        if (!firstAuthAttempt && PlayFabAuthService.Instance.AuthType == Authtypes.Silent)
+        {
+            // Show Login Menu to enforce they login/register with a secured option
+            LoginPanel.SetActive(true);
+            return;
+        }
+
+        firstAuthAttempt = false;
+        MainMenuPanel.SetActive(true);
     }
 
     // Invoked when Start Game button pressed (Main Menu Panel)
@@ -80,7 +78,7 @@ public class GameManager : Singleton<GameManager>
         audioSource.Play();
 
         Instantiate(helicopter, new Vector3(1, 2, Spawner.spawnZ), helicopter.transform.rotation);
-        StatusBar.SetActive(true);
+        StatusBarPanel.SetActive(true);
 
         gamePlaying = true;
 
@@ -95,7 +93,7 @@ public class GameManager : Singleton<GameManager>
         GameOverEvent?.Invoke();
 
         // Disable Status Bar coins display
-        StatusBar.SetActive(false);
+        StatusBarPanel.SetActive(false);
 
         // Save coins collected in PlayFab
         PlayfabManager.SavePlayerData(sessionCoins, true);
@@ -165,31 +163,31 @@ public class GameManager : Singleton<GameManager>
     }
     #endregion
 
-    private void OnPlayFaberror(PlayFabError error)
-    {
-        //Basic error cases on Login
-        switch (error.Error)
-        {
-            case PlayFabErrorCode.InvalidEmailAddress:
-            case PlayFabErrorCode.InvalidPassword:
-            case PlayFabErrorCode.InvalidEmailOrPassword:
-                StatusText.text = "Invalid Email or Password";
-                break;
+    //private void OnPlayFaberror(PlayFabError error)
+    //{
+    //    //Basic error cases on Login
+    //    switch (error.Error)
+    //    {
+    //        case PlayFabErrorCode.InvalidEmailAddress:
+    //        case PlayFabErrorCode.InvalidPassword:
+    //        case PlayFabErrorCode.InvalidEmailOrPassword:
+    //            StatusText.text = "Invalid Email or Password";
+    //            break;
 
-            case PlayFabErrorCode.AccountNotFound:
-                StatusText.text = "Account Not Found";
-                //RegisterPanel.SetActive(true);
-                //SigninPanel.SetActive(false);
-                return;
-            default:
-                StatusText.text = error.GenerateErrorReport();
-                break;
-        }
+    //        case PlayFabErrorCode.AccountNotFound:
+    //            StatusText.text = "Account Not Found";
+    //            //RegisterPanel.SetActive(true);
+    //            //SigninPanel.SetActive(false);
+    //            return;
+    //        default:
+    //            StatusText.text = error.GenerateErrorReport();
+    //            break;
+    //    }
 
-        //Report to debug console
-        Debug.Log(error.Error);
-        Debug.LogError(error.GenerateErrorReport());
-    }
+    //    //Report to debug console
+    //    Debug.Log(error.Error);
+    //    Debug.LogError(error.GenerateErrorReport());
+    //}
 
     public void ExitGame()
     {

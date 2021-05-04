@@ -9,8 +9,13 @@ public static class PlayfabManager
     // Events to subscribe for this service
     public static event Action<bool> OnInventoryLoadEvent;
 
+    // Flag set after successfull PlayFab Login
+    public static bool IsLoggedIn = false;
+    // Flag set when the user's AccountInfo is loaded
+    public static bool IsAccountInfoLoaded = false;
+
     // The user's Title specific DisplayName
-    //public static string UserDisplayName = null;
+    public static string UserDisplayName = null;
 
     public static readonly Dictionary<string, int> virtualCurrency = new Dictionary<string, int>();
     public static int CoinsBalance => virtualCurrency[coinsCode];
@@ -23,52 +28,47 @@ public static class PlayfabManager
     const string coinsCode = "CO";
     const string livesCode = "LV";
 
-    public static void GetInventory()
+    public static void LoadAccountData()
     {
-        PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), (GetUserInventoryResult result) =>
-        {
-            virtualCurrency.Clear();
-            foreach (var pair in result.VirtualCurrency)
+        PlayFabClientAPI.GetAccountInfo(
+            // Request
+            new GetAccountInfoRequest
             {
-                virtualCurrency.Add(pair.Key, pair.Value);
-            }
-
-            bool showCountDown = false;
-            VirtualCurrencyRechargeTime rechargeDetails;
-            if (result.VirtualCurrencyRechargeTimes.TryGetValue(livesCode, out rechargeDetails))
+                // No properties means get the calling user's info
+            },
+            // Success
+            (GetAccountInfoResult response) =>
             {
-                showCountDown = LivesBalance < rechargeDetails.RechargeMax;
-                SecondsToRecharge = rechargeDetails.SecondsToRecharge;
-            }
-            OnInventoryLoadEvent?.Invoke(showCountDown);
-
-        }, (error) =>
-        {
-            Debug.LogError(error.ToString());
-        });
+                Debug.Log("GetAccountInfo completed.");
+                UserDisplayName = response.AccountInfo.TitleInfo.DisplayName;
+                IsAccountInfoLoaded = true;
+            },
+            // Failure
+            OnApiCallError
+            );
     }
 
-    public static void SavePlayerData(int coinsCollected, bool gameOver = false)
+    ////////////////////////////////////////////////////////////////
+    /// Update the user's per-title DisplayName
+    /// 
+    public static void SetUserDisplayName(string name)
     {
-        var request = new ExecuteCloudScriptRequest
-        {
-            FunctionName = "SaveProgress",
-            FunctionParameter = new { CoinsCollected = coinsCollected, IsGameOver = gameOver },
-        };
-        PlayFabClientAPI.ExecuteCloudScript(request, OnSavePlayerDataSuccess, OnApiCallError);
-    }
+        UserDisplayName = name;
 
-    public static void TryBuyLives()
-    {
-        Debug.Log("Purchaseing Lives...");
-        PurchaseItemRequest request = new PurchaseItemRequest() { ItemId = extraLivesBundleId, VirtualCurrency = coinsCode, Price = livesBundlePrice };
-        PlayFabClientAPI.PurchaseItem(request, TryBuyLivesCallback, OnApiCallError);
-    }
-
-    static void TryBuyLivesCallback(PurchaseItemResult result)
-    {
-        Debug.Log("Lives Purchased!");
-        GetInventory();
+        PlayFabClientAPI.UpdateUserTitleDisplayName(
+            // Request
+            new UpdateUserTitleDisplayNameRequest
+            {
+                DisplayName = name
+            },
+            // Success
+            (UpdateUserTitleDisplayNameResult result) =>
+            {
+                Debug.Log("UpdateUserTitleDisplayName completed.");
+            },
+            // Failure
+            OnApiCallError
+            );
     }
 
     ////////////////////////////////////////////////////////////////
@@ -127,6 +127,56 @@ public static class PlayfabManager
             OnApiCallError
             );
     }
+
+    public static void GetInventory()
+    {
+        PlayFabClientAPI.GetUserInventory(new GetUserInventoryRequest(), (GetUserInventoryResult result) =>
+        {
+            virtualCurrency.Clear();
+            foreach (var pair in result.VirtualCurrency)
+            {
+                virtualCurrency.Add(pair.Key, pair.Value);
+            }
+
+            bool showCountDown = false;
+            VirtualCurrencyRechargeTime rechargeDetails;
+            if (result.VirtualCurrencyRechargeTimes.TryGetValue(livesCode, out rechargeDetails))
+            {
+                showCountDown = LivesBalance < rechargeDetails.RechargeMax;
+                SecondsToRecharge = rechargeDetails.SecondsToRecharge;
+            }
+            OnInventoryLoadEvent?.Invoke(showCountDown);
+
+        }, (error) =>
+        {
+            Debug.LogError(error.ToString());
+        });
+    }
+
+    public static void SavePlayerData(int coinsCollected, bool gameOver = false)
+    {
+        var request = new ExecuteCloudScriptRequest
+        {
+            FunctionName = "SaveProgress",
+            FunctionParameter = new { CoinsCollected = coinsCollected, IsGameOver = gameOver },
+        };
+        PlayFabClientAPI.ExecuteCloudScript(request, OnSavePlayerDataSuccess, OnApiCallError);
+    }
+
+    public static void TryBuyLives()
+    {
+        Debug.Log("Purchaseing Lives...");
+        PurchaseItemRequest request = new PurchaseItemRequest() { ItemId = extraLivesBundleId, VirtualCurrency = coinsCode, Price = livesBundlePrice };
+        PlayFabClientAPI.PurchaseItem(request, TryBuyLivesCallback, OnApiCallError);
+    }
+
+    static void TryBuyLivesCallback(PurchaseItemResult result)
+    {
+        Debug.Log("Lives Purchased!");
+        GetInventory();
+    }
+
+
 
     static void OnApiCallError(PlayFabError err)
     {
