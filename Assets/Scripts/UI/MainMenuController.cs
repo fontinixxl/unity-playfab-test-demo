@@ -32,8 +32,8 @@ public class MainMenuController : MonoBehaviour
     {
         ClearTextLabels();
 
-        Lives.text = "x " + PlayfabManager.LivesBalance;
-        Coins.text = "x " + PlayfabManager.CoinsBalance;
+        Lives.text = string.Format("x{0} ", PlayfabManager.LivesBalance);
+        Coins.text = string.Format("x{0} ", PlayfabManager.CoinsBalance);
 
         StartButton.interactable = PlayfabManager.LivesBalance > 0;
         BuyLivesButton.interactable = PlayfabManager.CoinsBalance >= PlayfabManager.livesBundlePrice;
@@ -86,10 +86,11 @@ public class MainMenuController : MonoBehaviour
 
     private void ClearTextLabels()
     {
-        livesRegenLabel.text = string.Empty;
+        string loading = "Loading..";
+        livesRegenLabel.text = loading;
         livesRegen.text = string.Empty;
-        Lives.text = string.Empty;
-        Coins.text = string.Empty;
+        Lives.text = loading;
+        Coins.text = loading;
     }
 
 }

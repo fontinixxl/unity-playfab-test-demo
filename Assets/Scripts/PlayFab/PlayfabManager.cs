@@ -3,7 +3,6 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
-using PlayFab.PfEditor.Json;
 
 public static class PlayfabManager 
 {
@@ -91,6 +90,6 @@ public static class PlayfabManager
 
     static void OnSavePlayerDataSuccess(ExecuteCloudScriptResult result)
     {
-        Debug.Log(JsonWrapper.SerializeObject(result.FunctionResult));
+        Debug.Log("Player Data saved successfully");
     }
 }

@@ -79,7 +79,7 @@ public class GameManager : Singleton<GameManager>
         PlayfabManager.SavePlayerData(sessionCoins, true);
 
         // Show game over menu
-        GameOverCoins.text = sessionCoins.ToString();
+        GameOverCoins.text = string.Format("x{0}",sessionCoins.ToString());
         GameOverPanel.SetActive(true);
 
         // Reset previous collected coins
