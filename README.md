@@ -1,5 +1,5 @@
 # PlayFab Demo
-*This sample was created on Unity 2019.4.24f1*
+*This sample was created on Unity 2019.4 LTS*
 
 ## Description
 This sample demonstrates a simple single-player  game that utilizes PlayFab for:
