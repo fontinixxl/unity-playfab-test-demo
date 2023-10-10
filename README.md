@@ -11,6 +11,9 @@ This sample demonstrates a simple single-player  game that utilizes PlayFab for:
 * Events that trigger Cloudscript
 * Player Statistics
 
+### Gameplay Footage (Solution)
+![alt text](Recordings/gameplay.gif)
+
 ## Using the Sample
 
 ### Requirements
@@ -22,9 +25,9 @@ After proceeding past the welcome page, you will be prompted to sign in to PlayF
 Playing the game consists of flying around an endless side-scrolling map, avoidinng planes and buildings and collecting as many coins as possible.
 
 Coins are important, as they are used as a **Soft Currency** to buy lives. 
-Lives will be regenerating every 2 minuts, only if the player has less than 5.
+Lives will be regenerating every 2 minutes, only if the player has less than 5.
 
-If all lives are lost, it is allways possible to buy a bundle of x3, for a certain amount of **coins**.
+If all lives are lost, it is always possible to buy a bundle of x3, for a certain amount of **coins**.
 
 After every Game Over screen, the login menu will be prompt to enforce the player creating a **recoverable account**.
 
@@ -67,10 +70,82 @@ The following Leaderboards are configured as Manual reset Sum statistics:
 * total_coins_session
 * total_session_time
 
-*The statistics are send to the server, but unfortunately I had no time to implement the leaderboars in the client*
+*The statistics are send to the server, but unfortunately I had no time to implement the leaderboards in the client*
 
 ### Automation Rules
 The following rules need to be created to link the client calls to the cloud script:
 
 * update_statstic: Custom Event, Execute Cloud Script, updateStatistic
 * update_statstics: Custom Event, Execute Cloud Script, updateStatistics
+
+### Cloud Script
+```javascript
+var COINS_CURRENCY_CODE = "CO";
+var LIVES_CURRENCY_CODE = "LV";
+
+///////////////////////// Cloud Script Handler Functions /////////////////////////
+function SaveProgress(args) {
+
+    if (args.IsGameOver){
+        SubtractLife();
+    }
+    // set up Coins VC
+    var addVcRequest = {
+        PlayFabId: currentPlayerId,
+        VirtualCurrency: COINS_CURRENCY_CODE,
+        Amount: args.CoinsCollected
+    };
+    return server.AddUserVirtualCurrency(addVcRequest);
+}
+
+function SubtractLife() {
+    var subtractVcRequest = {
+        PlayFabId: currentPlayerId,
+        VirtualCurrency: LIVES_CURRENCY_CODE,
+        Amount: 1
+    };
+    return server.SubtractUserVirtualCurrency(subtractVcRequest);
+}
+
+UpdateStatistic = function (args, context) {
+  var event = context.playStreamEvent;
+
+  if(event != null) {
+    var request = {
+      PlayFabId: currentPlayerId,
+      Statistics: [{
+        StatisticName: event.stat_name,
+        Value: event.value
+      }]
+    };
+
+    server.UpdatePlayerStatistics(request);
+  }
+};
+
+UpdateStatistics = function (args, context) {
+  var event = context.playStreamEvent;
+
+  if(event != null) {
+    var stats = event.stats;
+    var statArray = [];
+
+    for(var key in stats) {
+        var value = stats[key];
+        statArray.push({StatisticName: key, Value: value});
+	}
+
+    var request = {
+      PlayFabId: currentPlayerId,
+      Statistics: statArray
+    };
+
+    server.UpdatePlayerStatistics(request);
+  }
+};
+
+///////////////////////// Define the handlers /////////////////////////
+handlers.SaveProgress = SaveProgress;
+handlers.UpdateStatistic = UpdateStatistic;
+handlers.UpdateStatistics = UpdateStatistics;
+```
